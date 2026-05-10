@@ -3,7 +3,7 @@ import tailwind from '@astrojs/tailwind';
 
 export default defineConfig({
   site: 'https://plate-platform.github.io',
-  base: '/',
+  base: '/plate-website',
   integrations: [tailwind()],
   output: 'static',
 });
