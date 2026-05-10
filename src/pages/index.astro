@@ -274,8 +274,8 @@ import Layout from '../layouts/Layout.astro';
         <span class="text-plate-400">Nobody's governing them.</span>
       </h2>
       <p class="text-slate-400 text-lg max-w-2xl mx-auto">
-        Some are on AWS. Some on Azure. Some a developer spun up last week on their laptop.
-        Nobody knows what they cost. Nobody knows what data they can touch.
+        Some are on AWS Bedrock. Some on Azure AI. Some on GCP Vertex. Each team built theirs
+        independently. Nobody knows what they cost. Nobody knows what data they can touch.
       </p>
     </div>
 
@@ -288,11 +288,11 @@ import Layout from '../layouts/Layout.astro';
         <ul class="space-y-3 text-sm text-slate-400">
           {[
             'Spreadsheet tracks "maybe 12 agents?" — already out of date',
-            'No idea what each agent can write to',
-            '$4k/month billing agent — who owns it?',
-            'Customer-facing agent giving wrong answers since Tuesday — what changed?',
-            'Promoting dev→prod means copying YAML and praying',
-            'Cloud credentials scattered across team laptops',
+            'No idea what each agent can write to or what it costs',
+            '$4k/month Bedrock agent — which team owns it?',
+            'Customer-facing agent giving wrong answers — what changed and when?',
+            'Three clouds, three consoles, no unified view',
+            'Security asks "who approved this agent for prod?" — nobody knows',
           ].map(item => (
             <li class="flex items-start gap-2">
               <span class="text-red-500 mt-0.5 flex-shrink-0">—</span>
@@ -307,12 +307,12 @@ import Layout from '../layouts/Layout.astro';
         </h3>
         <ul class="space-y-3 text-sm text-slate-400">
           {[
-            '23 agents, 6 teams, all statuses visible in one dashboard',
-            'Blast radius analysis — see every system an agent can write to before promotion',
-            'Cost per agent, per team, per month — live',
-            'Prompt lineage: every change is a git commit correlated to eval results',
-            'dev→staging→prod is a one-click GitOps workflow',
-            'No cloud credentials in Agent Factory — Crossplane + ArgoCD handle it',
+            '23 agents across AWS, Azure, GCP — one dashboard, one owner per agent',
+            'Blast radius analysis — every system each agent can write to, before promotion',
+            'Cost per agent, per team, per month — across every provider',
+            'Every config change is a GitOps commit with a full audit trail',
+            'Promote across environments via ArgoCD + Crossplane — no manual cloud console work',
+            'Quarterly access recertification — overdue reviews auto-deactivate the agent',
           ].map(item => (
             <li class="flex items-start gap-2">
               <span class="text-emerald-500 mt-0.5 flex-shrink-0">✓</span>
@@ -326,36 +326,48 @@ import Layout from '../layouts/Layout.astro';
     <!-- how it works -->
     <div class="rounded-2xl border border-white/8 overflow-hidden">
       <div class="px-6 py-4 border-b border-white/8 bg-white/3">
-        <h3 class="text-white font-semibold">How Agent Factory works — two paths, one API</h3>
+        <h3 class="text-white font-semibold">One control plane — every provider</h3>
       </div>
-      <div class="grid md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-white/8">
+      <div class="grid md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-white/8">
         <div class="p-6">
-          <div class="text-xs text-plate-400 font-mono font-medium mb-3 uppercase tracking-wider">Path A — Local agents</div>
+          <div class="text-xs text-amber-400 font-mono font-medium mb-3 uppercase tracking-wider">Register a provider</div>
           <div class="space-y-2 font-mono text-sm">
             {[
-              ['text-slate-400', 'POST /agents/billing-assistant/invoke'],
-              ['text-slate-500', '  ↓ load agent config from K8s ConfigMap'],
-              ['text-slate-500', '  ↓ resolve tool URLs from tool catalog'],
-              ['text-slate-500', '  ↓ POST /api/chat → ai-chat-api'],
-              ['text-emerald-400', '  ↓ LLM calls Jira, Postgres, Slack tools'],
-              ['text-slate-500', '  ↓ store Run ConfigMap (trace + usage)'],
-              ['text-plate-300', '  ← return { output, steps, cost }'],
+              ['text-slate-400', 'POST /providers'],
+              ['text-slate-500', '  type: "aws-bedrock"'],
+              ['text-slate-500', '  region: "us-east-1"'],
+              ['text-slate-500', '  crossplaneXRD: BedrockAgent'],
+              ['text-emerald-400', '✓ provider-aws-prod registered'],
             ].map(([cls, line]) => (
               <div class={cls}>{line}</div>
             ))}
           </div>
         </div>
         <div class="p-6">
-          <div class="text-xs text-violet-400 font-mono font-medium mb-3 uppercase tracking-wider">Path B — Cloud / Remote agents (via GitOps)</div>
+          <div class="text-xs text-violet-400 font-mono font-medium mb-3 uppercase tracking-wider">Import existing agents</div>
           <div class="space-y-2 font-mono text-sm">
             {[
-              ['text-slate-400', 'POST /agents/research-agent/promote'],
-              ['text-slate-500', '  ↓ commit manifest to Git'],
-              ['text-slate-500', '    agents/production/research-agent.yaml'],
-              ['text-violet-400', '  ↓ ArgoCD detects commit → syncs'],
-              ['text-slate-500', '  ↓ Crossplane provisions Bedrock agent'],
-              ['text-slate-500', '  ↓ AF watches status → updates registry'],
-              ['text-plate-300', '  ← agent live in production'],
+              ['text-slate-400', 'POST /providers/aws-prod/discover'],
+              ['text-slate-500', '  ↓ scans Bedrock for agents'],
+              ['text-violet-400', '  found: billing-agent'],
+              ['text-violet-400', '  found: research-agent'],
+              ['text-slate-500', 'POST /providers/aws-prod/import'],
+              ['text-emerald-400', '✓ 2 agents in registry'],
+            ].map(([cls, line]) => (
+              <div class={cls}>{line}</div>
+            ))}
+          </div>
+        </div>
+        <div class="p-6">
+          <div class="text-xs text-plate-400 font-mono font-medium mb-3 uppercase tracking-wider">Govern across all providers</div>
+          <div class="space-y-2 font-mono text-sm">
+            {[
+              ['text-slate-400', 'GET /agents'],
+              ['text-slate-500', '  ?status=active'],
+              ['text-slate-500', '  billing-agent  [aws-prod]  $840/mo'],
+              ['text-slate-500', '  research-agent [gcp-ml]    $210/mo'],
+              ['text-slate-500', '  code-reviewer  [k8s-staging] $45/mo'],
+              ['text-plate-300', '  total: 23 agents · $2,840 MTD'],
             ].map(([cls, line]) => (
               <div class={cls}>{line}</div>
             ))}
@@ -501,8 +513,8 @@ import Layout from '../layouts/Layout.astro';
           {[
             'Deploy your app without a ticket — import from GitHub and go',
             'Ask the AI assistant to handle ops tasks in plain English',
-            'Build AI agents for your domain without managing cloud consoles',
-            'Local dev with Ollama — zero cloud cost while you iterate',
+            'Register and govern AI agents on AWS, GCP, or Azure from one portal',
+            'Full run history and cost breakdown — no digging through cloud consoles',
           ].map(item => (
             <li class="flex items-start gap-2"><span class="text-plate-400 flex-shrink-0 mt-0.5">→</span>{item}</li>
           ))}
