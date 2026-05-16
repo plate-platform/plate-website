@@ -1,608 +1,189 @@
 ---
 import Layout from '../layouts/Layout.astro';
+
+const modules = [
+  {
+    name: 'Workloads',
+    status: 'live',
+    description: 'Self-service app onboarding. Import a GitHub repo, auto-detect the framework, deploy to Kubernetes. No tickets.',
+  },
+  {
+    name: 'Assure',
+    status: 'live',
+    description: 'Test automation built into the platform. Write, manage, and run tests with a local browser — free forever.',
+  },
+  {
+    name: 'Plate Assistant',
+    status: 'live',
+    description: 'AI assistant that understands your platform. Deploy apps, check clusters, run operations — in plain English.',
+  },
+  {
+    name: 'Origin',
+    status: 'beta',
+    description: 'Infrastructure resource catalogue. Every cloud resource and Kubernetes namespace, with ownership and cost visibility.',
+  },
+  {
+    name: 'Flows',
+    status: 'beta',
+    description: 'Platform automation pipelines. Approval flows, runbooks, and self-service workflows — without scripting everything.',
+  },
+  {
+    name: 'Agent Factory',
+    status: 'soon',
+    description: 'Govern every AI agent your teams are building — on AWS Bedrock, Azure AI, GCP Vertex, or local. One control plane.',
+  },
+];
+
+const statusLabel: Record<string, string> = {
+  live: 'Live',
+  beta: 'Beta',
+  soon: 'Coming soon',
+};
 ---
 <Layout>
 
-<!-- ─── NAV ────────────────────────────────────────────────────────────────── -->
-<header class="fixed top-0 inset-x-0 z-50 border-b border-white/5 bg-slate-950/80 backdrop-blur-xl">
-  <nav class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-    <a href="/" class="flex items-center gap-2.5">
-      <svg class="w-7 h-7" viewBox="0 0 32 32" fill="none">
-        <rect width="32" height="32" rx="7" fill="#4f46e5"/>
-        <path d="M8 10h10a6 6 0 0 1 0 12H8V10z" fill="white" opacity="0.9"/>
-        <rect x="8" y="14" width="16" height="2.5" rx="1.25" fill="#4f46e5"/>
-      </svg>
-      <span class="font-bold text-lg tracking-tight text-white">Plate</span>
+<!-- subtle dot grid -->
+<div class="fixed inset-0 bg-[radial-gradient(rgba(15,23,42,0.06)_1px,transparent_1px)] dark:bg-[radial-gradient(rgba(148,163,184,0.05)_1px,transparent_1px)] bg-[size:28px_28px] pointer-events-none"></div>
+
+<!-- NAV -->
+<header class="relative z-10 max-w-2xl mx-auto px-6 pt-8 pb-0 flex items-center justify-between">
+  <a href="/" class="flex items-center gap-2.5">
+    <svg class="w-6 h-6" viewBox="0 0 32 32" fill="none">
+      <rect width="32" height="32" rx="7" fill="#4f46e5"/>
+      <path d="M8 10h10a6 6 0 0 1 0 12H8V10z" fill="white" opacity="0.9"/>
+      <rect x="8" y="14" width="16" height="2.5" rx="1.25" fill="#4f46e5"/>
+    </svg>
+    <span class="font-semibold text-slate-900 dark:text-white tracking-tight">Plate</span>
+  </a>
+  <div class="flex items-center gap-5">
+    <a href="https://discord.gg/7ErWeqyPHn" target="_blank"
+       class="text-slate-500 hover:text-slate-800 dark:hover:text-slate-300 text-sm transition-colors">
+      Discord
     </a>
-    <div class="hidden md:flex items-center gap-8 text-sm font-medium text-slate-400">
-      <a href="#platform" class="hover:text-white transition-colors">Platform</a>
-      <a href="#agent-factory" class="hover:text-white transition-colors">Agent Factory</a>
-      <a href="#assistant" class="hover:text-white transition-colors">AI Assistant</a>
-      <a href="#for-who" class="hover:text-white transition-colors">Who It's For</a>
-    </div>
     <a href="https://github.com/plate-platform" target="_blank"
-       class="hidden md:flex items-center gap-2 px-4 py-2 rounded-lg bg-plate-600 hover:bg-plate-500 text-white text-sm font-medium transition-colors">
-      <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
-      GitHub
+       class="text-slate-500 hover:text-slate-800 dark:hover:text-slate-300 text-sm transition-colors font-mono">
+      GitHub →
     </a>
-  </nav>
+    <!-- theme toggle -->
+    <button id="theme-toggle" aria-label="Toggle theme"
+            class="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-white/8 transition-colors">
+      <svg class="hidden dark:block w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M12 3v1m0 16v1m8.66-9H21M3 12H2m15.07-6.07-.71.71M6.64 17.36l-.71.71M17.36 17.36l.71.71M6.64 6.64l.71.71M12 7a5 5 0 1 0 0 10A5 5 0 0 0 12 7z"/>
+      </svg>
+      <svg class="block dark:hidden w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+      </svg>
+    </button>
+  </div>
 </header>
 
-<!-- ─── HERO ────────────────────────────────────────────────────────────────── -->
-<section class="relative min-h-screen flex items-center justify-center overflow-hidden pt-16">
-  <!-- background glow -->
-  <div class="absolute inset-0 overflow-hidden pointer-events-none">
-    <div class="absolute top-1/4 left-1/2 -translate-x-1/2 w-[900px] h-[600px] bg-plate-600/20 rounded-full blur-[120px]"></div>
-    <div class="absolute top-1/2 left-1/4 w-[400px] h-[400px] bg-violet-600/10 rounded-full blur-[100px]"></div>
-    <div class="absolute top-1/3 right-1/4 w-[300px] h-[300px] bg-indigo-400/10 rounded-full blur-[80px]"></div>
-    <!-- grid -->
-    <div class="absolute inset-0 bg-[linear-gradient(rgba(99,102,241,0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(99,102,241,0.04)_1px,transparent_1px)] bg-[size:64px_64px]"></div>
+<!-- HERO -->
+<main class="relative z-10 max-w-2xl mx-auto px-6 pt-20 pb-16">
+
+  <div class="flex items-center gap-2 text-xs text-slate-400 dark:text-slate-500 mb-8 font-mono">
+    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+    building in public · v0.1
   </div>
 
-  <div class="relative max-w-5xl mx-auto px-6 text-center">
-    <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-plate-500/30 bg-plate-500/10 text-plate-300 text-sm font-medium mb-8">
-      <span class="w-2 h-2 rounded-full bg-plate-400 animate-pulse-slow"></span>
-      Open Platform Engineering for the AI Era
-    </div>
+  <h1 class="text-4xl sm:text-5xl font-bold text-slate-900 dark:text-white tracking-tight leading-[1.1] mb-6">
+    An open internal developer<br class="hidden sm:block"/> platform for the AI era.
+  </h1>
 
-    <h1 class="text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.05] mb-6">
-      <span class="text-white">The platform your</span><br/>
-      <span class="bg-gradient-to-r from-plate-400 via-violet-400 to-indigo-300 bg-clip-text text-transparent">engineering teams deserve</span>
-    </h1>
+  <p class="text-slate-600 dark:text-slate-400 text-lg leading-relaxed mb-4 max-w-xl">
+    We got tired of developers waiting on tickets to deploy, platform teams buried in YAML,
+    and AI agents proliferating across three clouds with nobody tracking what they cost or what they could touch.
+  </p>
 
-    <p class="text-xl text-slate-400 max-w-2xl mx-auto mb-10 leading-relaxed">
-      Plate is an open internal developer platform that unifies application delivery,
-      infrastructure management, and AI agent governance — in one place, on your infrastructure.
-    </p>
+  <p class="text-slate-600 dark:text-slate-400 text-lg leading-relaxed mb-4 max-w-xl">
+    Plate is our fix — an open platform that unifies app delivery, infrastructure management,
+    and AI agent governance. Open source. Runs on your Kubernetes cluster.
+  </p>
 
-    <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
-      <a href="https://github.com/plate-platform" target="_blank"
-         class="px-8 py-3.5 rounded-xl bg-plate-600 hover:bg-plate-500 text-white font-semibold text-base transition-all hover:shadow-lg hover:shadow-plate-600/25">
-        Get Started on GitHub →
-      </a>
-      <a href="#platform"
-         class="px-8 py-3.5 rounded-xl border border-white/10 hover:border-white/20 text-slate-300 hover:text-white font-semibold text-base transition-all hover:bg-white/5">
-        See the Platform
-      </a>
-    </div>
+  <p class="text-slate-400 dark:text-slate-600 text-sm font-mono mb-10">
+    Still early. We're shipping fast.<span class="inline-block w-0.5 h-3.5 bg-slate-400 dark:bg-slate-500 ml-0.5 align-middle animate-[blink_1s_step-end_infinite]"></span>
+  </p>
 
-    <!-- stat pills -->
-    <div class="mt-16 flex flex-wrap items-center justify-center gap-4 text-sm">
-      {[
-        ['Kubernetes-native', 'No external database'],
-        ['GitOps-first', 'ArgoCD + Crossplane'],
-        ['AI-ready', 'Agents + MCP + LLMs'],
-        ['Open source', 'Apache 2.0'],
-      ].map(([label, sub]) => (
-        <div class="flex items-center gap-3 px-4 py-2.5 rounded-lg bg-white/5 border border-white/8">
-          <div class="w-2 h-2 rounded-full bg-plate-400"></div>
-          <div class="text-left">
-            <div class="text-white font-medium">{label}</div>
-            <div class="text-slate-500 text-xs">{sub}</div>
+  <div class="flex flex-wrap items-center gap-4 text-sm">
+    <a href="https://discord.gg/7ErWeqyPHn" target="_blank"
+       class="px-5 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-medium transition-colors">
+      Join the Discord
+    </a>
+    <a href="https://github.com/plate-platform" target="_blank"
+       class="px-5 py-2.5 rounded-lg border border-slate-200 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/20 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white font-medium transition-colors">
+      GitHub
+    </a>
+    <a href="#modules"
+       class="text-slate-400 dark:text-slate-500 hover:text-slate-800 dark:hover:text-white transition-colors">
+      What we're building ↓
+    </a>
+  </div>
+
+</main>
+
+<!-- MODULES -->
+<section id="modules" class="relative z-10 max-w-2xl mx-auto px-6 pb-24">
+
+  <p class="text-xs font-mono text-slate-400 dark:text-slate-600 uppercase tracking-widest mb-5">What we're building</p>
+
+  <div class="border border-slate-200 dark:border-white/8 rounded-xl overflow-hidden divide-y divide-slate-200 dark:divide-white/5 bg-white dark:bg-transparent">
+    {modules.map((m) => (
+      <div class="flex items-start gap-4 px-5 py-4 hover:bg-slate-50 dark:hover:bg-white/[0.02] transition-colors">
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-2.5 mb-1">
+            <span class="text-slate-900 dark:text-white font-medium text-sm">{m.name}</span>
+            <span class:list={[
+              'px-1.5 py-0.5 rounded text-xs font-mono',
+              m.status === 'live' && 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400',
+              m.status === 'beta' && 'bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400',
+              m.status === 'soon' && 'bg-slate-100 dark:bg-slate-700/60 text-slate-500 dark:text-slate-500',
+            ]}>
+              {statusLabel[m.status]}
+            </span>
           </div>
+          <p class="text-slate-500 dark:text-slate-500 text-sm leading-relaxed">{m.description}</p>
         </div>
-      ))}
-    </div>
+      </div>
+    ))}
   </div>
+
 </section>
 
-<!-- ─── PROBLEM ─────────────────────────────────────────────────────────────── -->
-<section class="py-28 border-t border-white/5">
-  <div class="max-w-6xl mx-auto px-6">
-    <div class="text-center mb-16">
-      <h2 class="text-3xl sm:text-4xl font-bold text-white mb-4">Platform engineering is broken</h2>
-      <p class="text-slate-400 text-lg max-w-2xl mx-auto">
-        Teams stitch together dozens of tools. Nothing talks to each other. Developers wait on tickets instead of shipping.
-      </p>
-    </div>
-    <div class="grid md:grid-cols-3 gap-6">
-      {[
-        {
-          icon: '🔧',
-          title: 'Too many tools, no coherence',
-          body: 'Jira for tickets, Confluence for docs, Jenkins for CI, Argo for deploy, PagerDuty for alerts. Every team has a different stack and nobody can see the full picture.',
-        },
-        {
-          icon: '⏳',
-          title: 'Developers wait on platform teams',
-          body: 'Every new app, environment, or cloud resource is a ticket. Platform teams are the bottleneck. Developers lose days waiting for access they should self-serve in minutes.',
-        },
-        {
-          icon: '🤖',
-          title: 'AI agents with no governance',
-          body: 'Teams are building AI agents on AWS, Azure, and internally. Nobody knows what they cost, what data they access, or who owns them. The governance gap grows every week.',
-        },
-      ].map(item => (
-        <div class="p-6 rounded-2xl bg-white/4 border border-white/8 hover:border-white/15 transition-colors">
-          <div class="text-3xl mb-4">{item.icon}</div>
-          <h3 class="text-white font-semibold text-lg mb-2">{item.title}</h3>
-          <p class="text-slate-400 leading-relaxed">{item.body}</p>
-        </div>
-      ))}
-    </div>
-  </div>
+<!-- TECH STACK (subtle) -->
+<section class="relative z-10 max-w-2xl mx-auto px-6 pb-24">
+  <p class="text-xs font-mono text-slate-400 dark:text-slate-600 uppercase tracking-widest mb-4">Built on</p>
+  <p class="text-slate-400 dark:text-slate-600 text-sm leading-loose">
+    {['Go', 'Kubernetes', 'ArgoCD', 'Crossplane', 'Helm', 'Vue 3', 'MCP Protocol'].join('  ·  ')}
+  </p>
 </section>
 
-<!-- ─── PLATFORM OVERVIEW ───────────────────────────────────────────────────── -->
-<section id="platform" class="py-28 border-t border-white/5">
-  <div class="max-w-6xl mx-auto px-6">
-    <div class="text-center mb-16">
-      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-plate-500/10 border border-plate-500/20 text-plate-300 text-sm font-medium mb-4">
-        The Platform
-      </div>
-      <h2 class="text-3xl sm:text-4xl font-bold text-white mb-4">
-        Everything platform engineering needs.<br/>Nothing you don't.
-      </h2>
-      <p class="text-slate-400 text-lg max-w-2xl mx-auto">
-        One portal. Your infrastructure. Teams ship autonomously while the platform team stays in control.
-      </p>
-    </div>
-
-    <!-- modules grid -->
-    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
-
-      <!-- Workloads -->
-      <div class="group relative p-6 rounded-2xl bg-gradient-to-b from-white/6 to-white/3 border border-white/10 hover:border-plate-500/40 transition-all hover:shadow-lg hover:shadow-plate-900/20">
-        <div class="w-10 h-10 rounded-xl bg-plate-600/20 flex items-center justify-center mb-4 text-plate-300 group-hover:bg-plate-600/30 transition-colors">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M12 5l7 7-7 7"/></svg>
-        </div>
-        <div class="flex items-center gap-2 mb-2">
-          <h3 class="text-white font-semibold text-lg">Workloads</h3>
-          <span class="px-2 py-0.5 rounded text-xs font-medium bg-emerald-500/15 text-emerald-400 border border-emerald-500/20">Live</span>
-        </div>
-        <p class="text-slate-400 text-sm leading-relaxed">
-          Self-service application onboarding. Import a GitHub repo, auto-detect the framework, generate a Helm chart, and deploy to Kubernetes in minutes. No tickets required.
-        </p>
-        <ul class="mt-4 space-y-1.5 text-xs text-slate-500">
-          <li class="flex items-center gap-2"><span class="text-plate-400">✓</span> GitHub + Gitea integration</li>
-          <li class="flex items-center gap-2"><span class="text-plate-400">✓</span> Auto-detect Spring Boot, Flask, Node.js, Go</li>
-          <li class="flex items-center gap-2"><span class="text-plate-400">✓</span> Helm chart generation + ChartMuseum publish</li>
-        </ul>
-      </div>
-
-      <!-- Origin -->
-      <div class="group relative p-6 rounded-2xl bg-gradient-to-b from-white/6 to-white/3 border border-white/10 hover:border-violet-500/40 transition-all hover:shadow-lg hover:shadow-violet-900/20">
-        <div class="w-10 h-10 rounded-xl bg-violet-600/20 flex items-center justify-center mb-4 text-violet-300 group-hover:bg-violet-600/30 transition-colors">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"/></svg>
-        </div>
-        <div class="flex items-center gap-2 mb-2">
-          <h3 class="text-white font-semibold text-lg">Origin</h3>
-          <span class="px-2 py-0.5 rounded text-xs font-medium bg-amber-500/15 text-amber-400 border border-amber-500/20">Beta</span>
-        </div>
-        <p class="text-slate-400 text-sm leading-relaxed">
-          Infrastructure resource catalogue. See every cloud resource, Kubernetes namespace, and managed service across your organisation — with ownership and cost visibility.
-        </p>
-        <ul class="mt-4 space-y-1.5 text-xs text-slate-500">
-          <li class="flex items-center gap-2"><span class="text-violet-400">✓</span> Crossplane-backed resource management</li>
-          <li class="flex items-center gap-2"><span class="text-violet-400">✓</span> Multi-cluster visibility</li>
-          <li class="flex items-center gap-2"><span class="text-violet-400">✓</span> Cost attribution per team</li>
-        </ul>
-      </div>
-
-      <!-- Flows -->
-      <div class="group relative p-6 rounded-2xl bg-gradient-to-b from-white/6 to-white/3 border border-white/10 hover:border-cyan-500/40 transition-all hover:shadow-lg hover:shadow-cyan-900/20">
-        <div class="w-10 h-10 rounded-xl bg-cyan-600/20 flex items-center justify-center mb-4 text-cyan-300 group-hover:bg-cyan-600/30 transition-colors">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-        </div>
-        <div class="flex items-center gap-2 mb-2">
-          <h3 class="text-white font-semibold text-lg">Flows</h3>
-          <span class="px-2 py-0.5 rounded text-xs font-medium bg-amber-500/15 text-amber-400 border border-amber-500/20">Beta</span>
-        </div>
-        <p class="text-slate-400 text-sm leading-relaxed">
-          Platform automation pipelines. Define approval flows, runbooks, and self-service workflows for common operations — without scripting everything from scratch.
-        </p>
-        <ul class="mt-4 space-y-1.5 text-xs text-slate-500">
-          <li class="flex items-center gap-2"><span class="text-cyan-400">✓</span> Visual workflow builder</li>
-          <li class="flex items-center gap-2"><span class="text-cyan-400">✓</span> Approval gates + notifications</li>
-          <li class="flex items-center gap-2"><span class="text-cyan-400">✓</span> Kubernetes-native execution</li>
-        </ul>
-      </div>
-
-      <!-- Assure -->
-      <div class="group relative p-6 rounded-2xl bg-gradient-to-b from-white/6 to-white/3 border border-white/10 hover:border-green-500/40 transition-all hover:shadow-lg hover:shadow-green-900/20">
-        <div class="w-10 h-10 rounded-xl bg-green-600/20 flex items-center justify-center mb-4 text-green-300 group-hover:bg-green-600/30 transition-colors">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
-        </div>
-        <div class="flex items-center gap-2 mb-2">
-          <h3 class="text-white font-semibold text-lg">Assure</h3>
-          <span class="px-2 py-0.5 rounded text-xs font-medium bg-emerald-500/15 text-emerald-400 border border-emerald-500/20">Live</span>
-        </div>
-        <p class="text-slate-400 text-sm leading-relaxed">
-          Test automation built into your platform. Write, manage, and run tests with a local browser — free forever. Upgrade to enterprise for AI-powered generation and cloud browser execution.
-        </p>
-        <ul class="mt-4 space-y-1.5 text-xs text-slate-500">
-          <li class="flex items-center gap-2"><span class="text-green-400">✓</span> Test suites, cases, variables — open source</li>
-          <li class="flex items-center gap-2"><span class="text-green-400">✓</span> Playwright export + workspace test runner</li>
-          <li class="flex items-center gap-2"><span class="text-amber-400">★</span> AI test generation + autonomous testing — enterprise</li>
-          <li class="flex items-center gap-2"><span class="text-amber-400">★</span> Cloud browser recording + execution — enterprise</li>
-        </ul>
-      </div>
-
-      <!-- Plate Assistant -->
-      <div class="group relative p-6 rounded-2xl bg-gradient-to-b from-white/6 to-white/3 border border-white/10 hover:border-indigo-500/40 transition-all hover:shadow-lg hover:shadow-indigo-900/20">
-        <div class="w-10 h-10 rounded-xl bg-indigo-600/20 flex items-center justify-center mb-4 text-indigo-300 group-hover:bg-indigo-600/30 transition-colors">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
-        </div>
-        <div class="flex items-center gap-2 mb-2">
-          <h3 class="text-white font-semibold text-lg">Plate Assistant</h3>
-          <span class="px-2 py-0.5 rounded text-xs font-medium bg-emerald-500/15 text-emerald-400 border border-emerald-500/20">Live</span>
-        </div>
-        <p class="text-slate-400 text-sm leading-relaxed">
-          An AI assistant that understands your platform. Deploy apps, check infrastructure, and run platform operations through natural language — powered by Claude, Gemini, or local models.
-        </p>
-        <ul class="mt-4 space-y-1.5 text-xs text-slate-500">
-          <li class="flex items-center gap-2"><span class="text-indigo-400">✓</span> 70+ platform tools via MCP</li>
-          <li class="flex items-center gap-2"><span class="text-indigo-400">✓</span> Works with Claude Desktop, VS Code, Cline</li>
-          <li class="flex items-center gap-2"><span class="text-indigo-400">✓</span> Local models via Ollama — no cloud required</li>
-        </ul>
-      </div>
-
-      <!-- Agent Factory -->
-      <div class="group relative p-6 rounded-2xl bg-gradient-to-b from-plate-900/40 to-violet-900/20 border border-plate-500/30 hover:border-plate-400/60 transition-all hover:shadow-xl hover:shadow-plate-900/30">
-        <div class="absolute top-3 right-3">
-          <span class="px-2 py-0.5 rounded text-xs font-medium bg-plate-500/20 text-plate-300 border border-plate-500/30">Coming Soon</span>
-        </div>
-        <div class="w-10 h-10 rounded-xl bg-plate-600/30 flex items-center justify-center mb-4 text-plate-300 group-hover:bg-plate-600/40 transition-colors">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18"/></svg>
-        </div>
-        <h3 class="text-white font-semibold text-lg mb-2">Agent Factory</h3>
-        <p class="text-slate-400 text-sm leading-relaxed">
-          The control plane for AI agents your teams are already building. Govern every agent — local, AWS Bedrock, Azure AI, or on another cluster — from one place.
-        </p>
-        <ul class="mt-4 space-y-1.5 text-xs text-slate-500">
-          <li class="flex items-center gap-2"><span class="text-plate-400">✓</span> Multi-provider: local, Bedrock, Vertex, Azure</li>
-          <li class="flex items-center gap-2"><span class="text-plate-400">✓</span> GitOps promotion via ArgoCD + Crossplane</li>
-          <li class="flex items-center gap-2"><span class="text-plate-400">✓</span> SLOs, blast radius, evals, cost tracking</li>
-        </ul>
-      </div>
-
-    </div>
-  </div>
-</section>
-
-<!-- ─── AGENT FACTORY DEEP DIVE ─────────────────────────────────────────────── -->
-<section id="agent-factory" class="py-28 border-t border-white/5 relative overflow-hidden">
-  <div class="absolute inset-0 bg-gradient-to-b from-plate-950/0 via-plate-950/50 to-plate-950/0 pointer-events-none"></div>
-  <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-plate-700/8 rounded-full blur-[100px] pointer-events-none"></div>
-
-  <div class="relative max-w-6xl mx-auto px-6">
-    <div class="text-center mb-16">
-      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-plate-500/10 border border-plate-500/20 text-plate-300 text-sm font-medium mb-4">
-        Agent Factory
-      </div>
-      <h2 class="text-3xl sm:text-4xl font-bold text-white mb-4">
-        Your teams are already building AI agents.<br/>
-        <span class="text-plate-400">Nobody's governing them.</span>
-      </h2>
-      <p class="text-slate-400 text-lg max-w-2xl mx-auto">
-        Some are on AWS Bedrock. Some on Azure AI. Some on GCP Vertex. Each team built theirs
-        independently. Nobody knows what they cost. Nobody knows what data they can touch.
-      </p>
-    </div>
-
-    <!-- the gap -->
-    <div class="grid md:grid-cols-2 gap-8 mb-16">
-      <div class="p-6 rounded-2xl bg-red-950/30 border border-red-500/20">
-        <h3 class="text-red-400 font-semibold mb-4 flex items-center gap-2">
-          <span>✗</span> Today — without Agent Factory
-        </h3>
-        <ul class="space-y-3 text-sm text-slate-400">
-          {[
-            'Spreadsheet tracks "maybe 12 agents?" — already out of date',
-            'No idea what each agent can write to or what it costs',
-            '$4k/month Bedrock agent — which team owns it?',
-            'Customer-facing agent giving wrong answers — what changed and when?',
-            'Three clouds, three consoles, no unified view',
-            'Security asks "who approved this agent for prod?" — nobody knows',
-          ].map(item => (
-            <li class="flex items-start gap-2">
-              <span class="text-red-500 mt-0.5 flex-shrink-0">—</span>
-              {item}
-            </li>
-          ))}
-        </ul>
-      </div>
-      <div class="p-6 rounded-2xl bg-emerald-950/30 border border-emerald-500/20">
-        <h3 class="text-emerald-400 font-semibold mb-4 flex items-center gap-2">
-          <span>✓</span> With Agent Factory
-        </h3>
-        <ul class="space-y-3 text-sm text-slate-400">
-          {[
-            '23 agents across AWS, Azure, GCP — one dashboard, one owner per agent',
-            'Blast radius analysis — every system each agent can write to, before promotion',
-            'Cost per agent, per team, per month — across every provider',
-            'Every config change is a GitOps commit with a full audit trail',
-            'Promote across environments via ArgoCD + Crossplane — no manual cloud console work',
-            'Quarterly access recertification — overdue reviews auto-deactivate the agent',
-          ].map(item => (
-            <li class="flex items-start gap-2">
-              <span class="text-emerald-500 mt-0.5 flex-shrink-0">✓</span>
-              {item}
-            </li>
-          ))}
-        </ul>
-      </div>
-    </div>
-
-    <!-- how it works -->
-    <div class="rounded-2xl border border-white/8 overflow-hidden">
-      <div class="px-6 py-4 border-b border-white/8 bg-white/3">
-        <h3 class="text-white font-semibold">One control plane — every provider</h3>
-      </div>
-      <div class="grid md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-white/8">
-        <div class="p-6">
-          <div class="text-xs text-amber-400 font-mono font-medium mb-3 uppercase tracking-wider">Register a provider</div>
-          <div class="space-y-2 font-mono text-sm">
-            {[
-              ['text-slate-400', 'POST /providers'],
-              ['text-slate-500', '  type: "aws-bedrock"'],
-              ['text-slate-500', '  region: "us-east-1"'],
-              ['text-slate-500', '  crossplaneXRD: BedrockAgent'],
-              ['text-emerald-400', '✓ provider-aws-prod registered'],
-            ].map(([cls, line]) => (
-              <div class={cls}>{line}</div>
-            ))}
-          </div>
-        </div>
-        <div class="p-6">
-          <div class="text-xs text-violet-400 font-mono font-medium mb-3 uppercase tracking-wider">Import existing agents</div>
-          <div class="space-y-2 font-mono text-sm">
-            {[
-              ['text-slate-400', 'POST /providers/aws-prod/discover'],
-              ['text-slate-500', '  ↓ scans Bedrock for agents'],
-              ['text-violet-400', '  found: billing-agent'],
-              ['text-violet-400', '  found: research-agent'],
-              ['text-slate-500', 'POST /providers/aws-prod/import'],
-              ['text-emerald-400', '✓ 2 agents in registry'],
-            ].map(([cls, line]) => (
-              <div class={cls}>{line}</div>
-            ))}
-          </div>
-        </div>
-        <div class="p-6">
-          <div class="text-xs text-plate-400 font-mono font-medium mb-3 uppercase tracking-wider">Govern across all providers</div>
-          <div class="space-y-2 font-mono text-sm">
-            {[
-              ['text-slate-400', 'GET /agents'],
-              ['text-slate-500', '  ?status=active'],
-              ['text-slate-500', '  billing-agent  [aws-prod]  $840/mo'],
-              ['text-slate-500', '  research-agent [gcp-ml]    $210/mo'],
-              ['text-slate-500', '  code-reviewer  [k8s-staging] $45/mo'],
-              ['text-plate-300', '  total: 23 agents · $2,840 MTD'],
-            ].map(([cls, line]) => (
-              <div class={cls}>{line}</div>
-            ))}
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- key differentiators -->
-    <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-8">
-      {[
-        { icon: '🎯', title: 'Blast Radius Analysis', body: 'Know exactly what every agent can touch before it goes to production.' },
-        { icon: '📊', title: 'Agent SLOs', body: 'p95 latency, error rate, cost targets. Alerts when breached. Language SREs already speak.' },
-        { icon: '🔀', title: 'Shadow Mode', body: 'Route % of traffic to a new model version. Auto-promote or auto-rollback based on evals.' },
-        { icon: '📋', title: 'Access Recertification', body: 'Quarterly review of every tool permission. Overdue reviews auto-deactivate the agent.' },
-      ].map(item => (
-        <div class="p-5 rounded-xl bg-white/4 border border-white/8 hover:border-white/15 transition-colors">
-          <div class="text-2xl mb-3">{item.icon}</div>
-          <h4 class="text-white font-semibold text-sm mb-1.5">{item.title}</h4>
-          <p class="text-slate-500 text-xs leading-relaxed">{item.body}</p>
-        </div>
-      ))}
-    </div>
-  </div>
-</section>
-
-<!-- ─── PLATE ASSISTANT ─────────────────────────────────────────────────────── -->
-<section id="assistant" class="py-28 border-t border-white/5">
-  <div class="max-w-6xl mx-auto px-6">
-    <div class="grid lg:grid-cols-2 gap-16 items-center">
-      <div>
-        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-sm font-medium mb-6">
-          Plate Assistant
-        </div>
-        <h2 class="text-3xl sm:text-4xl font-bold text-white mb-6">
-          Your platform, in plain English
-        </h2>
-        <p class="text-slate-400 text-lg mb-6 leading-relaxed">
-          Plate Assistant is an AI that understands your entire platform. Ask it to deploy an application, check the health of a cluster, review a policy, or kick off a workflow — in natural language.
-        </p>
-        <p class="text-slate-400 mb-8 leading-relaxed">
-          Powered by 70+ platform tools via MCP servers. Works with Claude, Gemini, local Ollama models, or any LLM provider. Also works directly in Claude Desktop, VS Code Copilot, and Cline — without opening a browser.
-        </p>
-        <div class="flex flex-wrap gap-3">
-          {['Claude', 'Gemini', 'Ollama (local)', 'VS Code Copilot', 'Claude Desktop', 'Cline'].map(tool => (
-            <span class="px-3 py-1 rounded-full bg-white/6 border border-white/10 text-slate-300 text-sm">{tool}</span>
-          ))}
-        </div>
-      </div>
-
-      <!-- chat mock -->
-      <div class="rounded-2xl border border-white/10 overflow-hidden bg-slate-900/60 backdrop-blur">
-        <div class="flex items-center gap-2 px-4 py-3 border-b border-white/8 bg-white/3">
-          <div class="w-3 h-3 rounded-full bg-red-500/60"></div>
-          <div class="w-3 h-3 rounded-full bg-yellow-500/60"></div>
-          <div class="w-3 h-3 rounded-full bg-green-500/60"></div>
-          <span class="ml-2 text-slate-500 text-xs font-mono">Plate Assistant</span>
-        </div>
-        <div class="p-5 space-y-4 text-sm">
-          <div class="flex gap-3">
-            <div class="w-7 h-7 rounded-full bg-slate-700 flex items-center justify-center text-xs flex-shrink-0 font-medium text-slate-300">U</div>
-            <div class="bg-white/6 rounded-xl rounded-tl-none px-4 py-2.5 text-slate-300">
-              Deploy the order-service from main branch to dev
-            </div>
-          </div>
-          <div class="flex gap-3">
-            <div class="w-7 h-7 rounded-full bg-plate-600 flex items-center justify-center text-xs flex-shrink-0 font-semibold text-white">P</div>
-            <div class="space-y-2 flex-1">
-              <div class="bg-plate-900/60 border border-plate-700/40 rounded-xl rounded-tl-none px-4 py-2.5 text-slate-300">
-                <p class="mb-2">Sure. I can see order-service at commit <code class="text-plate-300 font-mono text-xs">a3f92c1</code>. Deploying to <span class="text-emerald-400">dev</span> namespace now.</p>
-                <div class="space-y-1 text-xs text-slate-500 font-mono">
-                  <div class="text-emerald-400">✓ Helm chart found: plate-charts/flask:1.0.0</div>
-                  <div class="text-emerald-400">✓ Namespace dev — ready</div>
-                  <div class="text-plate-400 animate-pulse">⟳ Deploying order-service...</div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="flex gap-3">
-            <div class="w-7 h-7 rounded-full bg-slate-700 flex items-center justify-center text-xs flex-shrink-0 font-medium text-slate-300">U</div>
-            <div class="bg-white/6 rounded-xl rounded-tl-none px-4 py-2.5 text-slate-300">
-              What's the current cost for the ml-team namespace this month?
-            </div>
-          </div>
-          <div class="flex gap-3">
-            <div class="w-7 h-7 rounded-full bg-plate-600 flex items-center justify-center text-xs flex-shrink-0 font-semibold text-white">P</div>
-            <div class="bg-plate-900/60 border border-plate-700/40 rounded-xl rounded-tl-none px-4 py-2.5 text-slate-300">
-              ml-team namespace — May 2026 MTD: <span class="text-emerald-400 font-semibold">$1,842</span>. Top cost drivers: gpu-training-job ($1,200), inference-api ($420).
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ─── FOR WHO ──────────────────────────────────────────────────────────────── -->
-<section id="for-who" class="py-28 border-t border-white/5">
-  <div class="max-w-6xl mx-auto px-6">
-    <div class="text-center mb-16">
-      <h2 class="text-3xl sm:text-4xl font-bold text-white mb-4">Built for everyone on the team</h2>
-      <p class="text-slate-400 text-lg max-w-xl mx-auto">Different people. Different problems. One platform.</p>
-    </div>
-    <div class="grid md:grid-cols-3 gap-6">
-
-      <div class="p-6 rounded-2xl bg-gradient-to-b from-white/6 to-white/2 border border-white/10">
-        <div class="w-12 h-12 rounded-2xl bg-slate-700 flex items-center justify-center text-2xl mb-5">👔</div>
-        <h3 class="text-white font-bold text-lg mb-1">Engineering Leadership</h3>
-        <p class="text-plate-400 text-sm font-medium mb-4">CTO · VP Engineering · Head of Platform</p>
-        <ul class="space-y-3 text-sm text-slate-400">
-          {[
-            'Full visibility into every app, agent, and cloud resource across all teams',
-            'Governance for AI agents before the compliance audit forces it',
-            'Cost attribution per team and per workload — no more surprise cloud bills',
-            'Platform that compounds: teams build faster without adding platform headcount',
-          ].map(item => (
-            <li class="flex items-start gap-2"><span class="text-plate-400 flex-shrink-0 mt-0.5">→</span>{item}</li>
-          ))}
-        </ul>
-      </div>
-
-      <div class="p-6 rounded-2xl bg-gradient-to-b from-white/6 to-white/2 border border-white/10">
-        <div class="w-12 h-12 rounded-2xl bg-slate-700 flex items-center justify-center text-2xl mb-5">🛠️</div>
-        <h3 class="text-white font-bold text-lg mb-1">Platform Engineers</h3>
-        <p class="text-plate-400 text-sm font-medium mb-4">SRE · DevOps · Infrastructure</p>
-        <ul class="space-y-3 text-sm text-slate-400">
-          {[
-            'Stop being the bottleneck — developers self-serve environments and deployments',
-            'GitOps-native: ArgoCD and Crossplane are first-class, not bolted on',
-            'Kubernetes-native storage — no extra database to manage or backup',
-            'MCP servers let you extend the AI assistant with your own platform tools',
-          ].map(item => (
-            <li class="flex items-start gap-2"><span class="text-plate-400 flex-shrink-0 mt-0.5">→</span>{item}</li>
-          ))}
-        </ul>
-      </div>
-
-      <div class="p-6 rounded-2xl bg-gradient-to-b from-white/6 to-white/2 border border-white/10">
-        <div class="w-12 h-12 rounded-2xl bg-slate-700 flex items-center justify-center text-2xl mb-5">💻</div>
-        <h3 class="text-white font-bold text-lg mb-1">Application Developers</h3>
-        <p class="text-plate-400 text-sm font-medium mb-4">Backend · Frontend · Full-stack</p>
-        <ul class="space-y-3 text-sm text-slate-400">
-          {[
-            'Deploy your app without a ticket — import from GitHub and go',
-            'Ask the AI assistant to handle ops tasks in plain English',
-            'Register and govern AI agents on AWS, GCP, or Azure from one portal',
-            'Full run history and cost breakdown — no digging through cloud consoles',
-          ].map(item => (
-            <li class="flex items-start gap-2"><span class="text-plate-400 flex-shrink-0 mt-0.5">→</span>{item}</li>
-          ))}
-        </ul>
-      </div>
-
-    </div>
-  </div>
-</section>
-
-<!-- ─── TECH FOUNDATION ─────────────────────────────────────────────────────── -->
-<section class="py-20 border-t border-white/5">
-  <div class="max-w-6xl mx-auto px-6">
-    <div class="text-center mb-10">
-      <h2 class="text-2xl font-bold text-white mb-2">Built on the tools you already trust</h2>
-      <p class="text-slate-500">Plate doesn't reinvent the wheel. It orchestrates the best tools in the ecosystem.</p>
-    </div>
-    <div class="flex flex-wrap justify-center gap-3">
-      {[
-        'Kubernetes', 'ArgoCD', 'Crossplane', 'Helm', 'Authentik',
-        'Vue 3', 'Go', 'Python', 'Tailwind CSS',
-        'Anthropic Claude', 'Google Gemini', 'Ollama',
-        'MCP Protocol', 'Gitea', 'Harbor',
-      ].map(tech => (
-        <span class="px-4 py-2 rounded-lg bg-white/5 border border-white/8 text-slate-400 text-sm hover:border-white/15 hover:text-slate-300 transition-colors cursor-default">
-          {tech}
-        </span>
-      ))}
-    </div>
-  </div>
-</section>
-
-<!-- ─── CTA ─────────────────────────────────────────────────────────────────── -->
-<section class="py-28 border-t border-white/5 relative overflow-hidden">
-  <div class="absolute inset-0 bg-gradient-to-b from-plate-950/0 via-plate-900/20 to-plate-950/0 pointer-events-none"></div>
-  <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] bg-plate-700/10 rounded-full blur-[80px] pointer-events-none"></div>
-  <div class="relative max-w-3xl mx-auto px-6 text-center">
-    <h2 class="text-4xl sm:text-5xl font-extrabold text-white mb-6 tracking-tight">
-      Ready to build your<br/>
-      <span class="bg-gradient-to-r from-plate-400 to-violet-400 bg-clip-text text-transparent">internal platform?</span>
-    </h2>
-    <p class="text-slate-400 text-xl mb-10 leading-relaxed">
-      Plate is open source. Run it on your Kubernetes cluster today.
-    </p>
-    <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
-      <a href="https://github.com/plate-platform" target="_blank"
-         class="px-8 py-4 rounded-xl bg-plate-600 hover:bg-plate-500 text-white font-semibold text-lg transition-all hover:shadow-xl hover:shadow-plate-600/30 w-full sm:w-auto text-center">
-        Get Started on GitHub →
-      </a>
-      <a href="https://github.com/plate-platform/plate-platform" target="_blank"
-         class="px-8 py-4 rounded-xl border border-white/10 hover:border-white/20 text-slate-300 hover:text-white font-semibold text-lg transition-all hover:bg-white/5 w-full sm:w-auto text-center">
-        ★ Star on GitHub
-      </a>
-    </div>
-    <!-- quick start -->
-    <div class="rounded-xl border border-white/8 bg-slate-900/60 overflow-hidden text-left">
-      <div class="flex items-center gap-2 px-4 py-2.5 border-b border-white/8 bg-white/3">
-        <span class="text-xs text-slate-500 font-mono">Quick start</span>
-      </div>
-      <div class="p-4 font-mono text-sm space-y-1.5 text-slate-400">
-        <div><span class="text-slate-600 select-none">$ </span><span class="text-slate-300">git clone --recurse-submodules git@github.com:plate-platform/plate-platform.git</span></div>
-        <div><span class="text-slate-600 select-none">$ </span><span class="text-slate-300">cd plate-platform</span></div>
-        <div><span class="text-slate-600 select-none">$ </span><span class="text-slate-300">make install</span></div>
-        <div><span class="text-slate-600 select-none">$ </span><span class="text-slate-300">make dev</span></div>
-        <div class="text-emerald-400 pt-1">✓ Platform running at http://localhost:3000</div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ─── FOOTER ──────────────────────────────────────────────────────────────── -->
-<footer class="border-t border-white/5 py-10">
-  <div class="max-w-6xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-slate-600">
-    <div class="flex items-center gap-2.5">
-      <svg class="w-5 h-5" viewBox="0 0 32 32" fill="none">
-        <rect width="32" height="32" rx="7" fill="#4f46e5"/>
-        <path d="M8 10h10a6 6 0 0 1 0 12H8V10z" fill="white" opacity="0.9"/>
-        <rect x="8" y="14" width="16" height="2.5" rx="1.25" fill="#4f46e5"/>
-      </svg>
-      <span class="text-slate-500">Plate Platform — Open source, Apache 2.0</span>
-    </div>
-    <div class="flex items-center gap-6">
-      <a href="https://github.com/plate-platform" target="_blank" class="hover:text-slate-400 transition-colors">GitHub</a>
-      <a href="https://github.com/plate-platform/plate-platform/blob/main/README.md" target="_blank" class="hover:text-slate-400 transition-colors">Docs</a>
-      <a href="https://github.com/plate-platform/plate-platform/issues" target="_blank" class="hover:text-slate-400 transition-colors">Issues</a>
+<!-- FOOTER -->
+<footer class="relative z-10 max-w-2xl mx-auto px-6 pb-10 pt-6 border-t border-slate-200 dark:border-white/5">
+  <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs text-slate-400 dark:text-slate-600">
+    <span class="font-mono">Plate Platform · Apache 2.0</span>
+    <div class="flex items-center gap-5">
+      <a href="https://github.com/plate-platform" target="_blank" class="hover:text-slate-700 dark:hover:text-slate-400 transition-colors">GitHub</a>
+      <a href="https://github.com/plate-platform/plate-platform/blob/main/README.md" target="_blank" class="hover:text-slate-700 dark:hover:text-slate-400 transition-colors">Docs</a>
+      <a href="https://github.com/plate-platform/plate-platform/issues" target="_blank" class="hover:text-slate-700 dark:hover:text-slate-400 transition-colors">Issues</a>
+      <a href="https://discord.gg/7ErWeqyPHn" target="_blank" class="hover:text-slate-700 dark:hover:text-slate-400 transition-colors">Discord</a>
     </div>
   </div>
 </footer>
+
+<style>
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0; }
+  }
+</style>
+
+<script>
+  const toggle = document.getElementById('theme-toggle');
+  toggle?.addEventListener('click', () => {
+    const isDark = document.documentElement.classList.toggle('dark');
+    localStorage.setItem('theme', isDark ? 'dark' : 'light');
+  });
+</script>
 
 </Layout>
